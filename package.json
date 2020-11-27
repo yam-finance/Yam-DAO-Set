@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@openzeppelin/contracts": "^3.2.0",
     "ethers": "^5.0.8",
     "ganache-cli": "^6.10.1-beta.2",
     "ganache-core": "^2.11.3-beta.0"
