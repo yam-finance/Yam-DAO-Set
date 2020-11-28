@@ -5,13 +5,16 @@ pragma experimental ABIEncoderV2;
 
 import {DSTest} from "../../lib/test.sol";
 import {TreasuryHelpers} from "../HEVMHelpers.sol";
-import {SushiBarWrapAdapter} from "../../adapters/SushiBarWrapAdapter.sol";
+import {SushiBarWrapAdapter} from "../../set-adapters/SushiBarWrapAdapter.sol";
 import {IERC20} from "../../interfaces/IERC20.sol";
 import {IIntegrationRegistry} from "../../interfaces/IIntegrationRegistry.sol";
 import {IStreamingFeeModule} from "../../interfaces/IStreamingFeeModule.sol";
 import {IBasicIssuanceModule} from "../../interfaces/IBasicIssuanceModule.sol";
 import {ITradeModule} from "../../interfaces/ITradeModule.sol";
 import {IWrapModule} from "../../interfaces/IWrapModule.sol";
+import {TokenAllowlist} from "../../lib/TokenAllowlist.sol";
+import {ISetTokenCreator} from "../../interfaces/ISetTokenCreator.sol";
+import {ISetToken} from "../../interfaces/ISetToken.sol";
 
 interface Hevm {
     function warp(uint256) external;
@@ -61,8 +64,15 @@ contract BaseTest is DSTest {
         0xbe4aEdE1694AFF7F1827229870f6cf3d9e7a999c
     );
 
+    TokenAllowlist tokenAllowlist;
     IERC20 xsushi = IERC20(0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272);
     IERC20 sushi = IERC20(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
+
+    ISetTokenCreator setCreator = ISetTokenCreator(
+        0x65d103A810099193c892a23d6b320cF3B9E30D46
+    );
+
+    ISetToken setToken;
 
     function setUpCore() public {
         hevm = Hevm(address(CHEAT_CODE));
@@ -82,8 +92,50 @@ contract BaseTest is DSTest {
             "SushiBarWrapAdapter",
             address(new SushiBarWrapAdapter(address(sushi), address(xsushi)))
         );
+        address[] memory allowedTokens = new address[](2);
+        allowedTokens[0] = address(sushi);
+        allowedTokens[1] = address(xsushi);
+        tokenAllowlist = new TokenAllowlist(address(this), allowedTokens);
 
-        helper.write_balanceOf(address(sushi), address(this), 100000*(10**18));
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(sushi);
+        int256[] memory amounts = new int256[](1);
+        amounts[0] = 1 * (10**18);
+        address[] memory modules = new address[](4);
+        modules[0] = address(feeModule);
+        modules[1] = address(tradeModule);
+        modules[2] = address(basicIssuanceModule);
+        modules[3] = address(wrapModule);
+        setToken = ISetToken(
+            setCreator.create(
+                tokens,
+                amounts,
+                modules,
+                address(this),
+                "Test Set",
+                "TEST"
+            )
+        );
+
+        feeModule.initialize(
+            setToken,
+            IStreamingFeeModule.FeeState({
+                feeRecipient: address(0x1),
+                maxStreamingFeePercentage: 1 * (10**17),
+                streamingFeePercentage: 2 * (10**16),
+                lastStreamingFeeTimestamp: 0
+            })
+        );
+        tradeModule.initialize(setToken);
+        basicIssuanceModule.initialize(setToken, address(0x0));
+        wrapModule.initialize(setToken);
+
+        helper.write_balanceOf(
+            address(sushi),
+            address(this),
+            100000 * (10**18)
+        );
+        sushi.approve(address(basicIssuanceModule), 1 * (10**18));
     }
 
     // --- helpers
