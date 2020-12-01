@@ -2,35 +2,29 @@
 
 pragma solidity 0.6.12;
 
-import {SubGoverned} from "../lib/SubGoverned.sol";
+import {BaseAdapter} from "./BaseAdapter.sol";
 import {TreasuryManager} from "../TreasuryManager.sol";
-import {TokenAllowlist} from "../lib/TokenAllowlist.sol";
+
+import {SubGoverned} from "../lib/SubGoverned.sol";
+import {PreciseUnitMath} from "../lib/PreciseUnitMath.sol";
+
 import {ITradeModule} from "../interfaces/ITradeModule.sol";
 import {ISetToken} from "../interfaces/ISetToken.sol";
 
-import {PreciseUnitMath} from "../lib/PreciseUnitMath.sol";
 
-contract TradeAdapter is SubGoverned {
+contract TradeAdapter is BaseAdapter {
     using PreciseUnitMath for uint256;
-    TreasuryManager public manager;
     ITradeModule public module;
-    TokenAllowlist public allowlist;
-    ISetToken public setToken;
 
     constructor(
         ISetToken _setToken,
         TreasuryManager _manager,
-        ITradeModule _module,
-        TokenAllowlist _allowlist,
-        address _gov
+        ITradeModule _module
+
     )
-        public
+        public BaseAdapter(_setToken, _manager)
     {
-        setToken = _setToken;
-        manager = _manager;
         module = _module;
-        allowlist = _allowlist;
-        gov = _gov;
     }
 
     /**
@@ -52,10 +46,10 @@ contract TradeAdapter is SubGoverned {
         bytes memory _data
     )
         external
-        onlyGovOrSubGov
+        onlyCanInvokeModules
     {
         require(
-            allowlist.isAllowed(_destinationToken),
+            manager.isTokenAllowed(_destinationToken),
             "TradeAdapter::trade: _destinationToken is not on the allowed list"
         );
         // NOTE: should I be doing this? I assume so since totalSupply could change if it isn't transformed on-chain

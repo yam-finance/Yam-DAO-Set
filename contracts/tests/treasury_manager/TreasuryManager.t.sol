@@ -24,14 +24,18 @@ contract TreasuryManagerTest is BaseTest {
     
     function setUp() public {
         setUpCore();
+        address[] memory allowedTokens = new address[](2);
+        allowedTokens[0] = address(sushi);
+        allowedTokens[1] = address(xsushi);
 
         manager = new TreasuryManager(
             setToken,
-            address(this)
+            address(this),
+            allowedTokens
         );
-        tradeAdapter = new TradeAdapter(setToken, manager, tradeModule, tokenAllowlist, address(this));
-        wrapAdapter = new WrapAdapter(setToken, manager, wrapModule, tokenAllowlist,address(this));
-        feeAdapter = new StreamingFeeAdapter(setToken, manager, feeModule, address(this));
+        tradeAdapter = new TradeAdapter(setToken, manager, tradeModule);
+        wrapAdapter = new WrapAdapter(setToken, manager, wrapModule);
+        feeAdapter = new StreamingFeeAdapter(setToken, manager, feeModule);
         manager.setModuleAdapterAllowed(address(tradeModule),address(tradeAdapter), true);
         manager.setModuleAdapterAllowed(address(wrapModule),address(wrapAdapter), true);
         manager.setModuleAdapterAllowed(address(feeModule),address(feeAdapter), true);

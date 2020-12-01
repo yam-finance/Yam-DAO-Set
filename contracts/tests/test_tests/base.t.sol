@@ -5,14 +5,15 @@ pragma experimental ABIEncoderV2;
 
 import {DSTest} from "../../lib/test.sol";
 import {TreasuryHelpers} from "../HEVMHelpers.sol";
+
 import {SushiBarWrapAdapter} from "../../set-adapters/SushiBarWrapAdapter.sol";
+
 import {IERC20} from "../../interfaces/IERC20.sol";
 import {IIntegrationRegistry} from "../../interfaces/IIntegrationRegistry.sol";
 import {IStreamingFeeModule} from "../../interfaces/IStreamingFeeModule.sol";
 import {IBasicIssuanceModule} from "../../interfaces/IBasicIssuanceModule.sol";
 import {ITradeModule} from "../../interfaces/ITradeModule.sol";
 import {IWrapModule} from "../../interfaces/IWrapModule.sol";
-import {TokenAllowlist} from "../../lib/TokenAllowlist.sol";
 import {ISetTokenCreator} from "../../interfaces/ISetTokenCreator.sol";
 import {ISetToken} from "../../interfaces/ISetToken.sol";
 
@@ -64,7 +65,6 @@ contract BaseTest is DSTest {
         0xbe4aEdE1694AFF7F1827229870f6cf3d9e7a999c
     );
 
-    TokenAllowlist tokenAllowlist;
     IERC20 xsushi = IERC20(0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272);
     IERC20 sushi = IERC20(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
 
@@ -92,10 +92,6 @@ contract BaseTest is DSTest {
             "SushiBarWrapAdapter",
             address(new SushiBarWrapAdapter(address(sushi), address(xsushi)))
         );
-        address[] memory allowedTokens = new address[](2);
-        allowedTokens[0] = address(sushi);
-        allowedTokens[1] = address(xsushi);
-        tokenAllowlist = new TokenAllowlist(address(this), allowedTokens);
 
         address[] memory tokens = new address[](1);
         tokens[0] = address(sushi);

@@ -2,28 +2,21 @@
 
 pragma solidity 0.6.12;
 
-import {SubGoverned} from "../lib/SubGoverned.sol";
+import {BaseAdapter} from "./BaseAdapter.sol";
 import {TreasuryManager} from "../TreasuryManager.sol";
-import {TokenAllowlist} from "../lib/TokenAllowlist.sol";
+
 import {IStreamingFeeModule} from "../interfaces/IStreamingFeeModule.sol";
 import {ISetToken} from "../interfaces/ISetToken.sol";
 
-contract StreamingFeeAdapter is SubGoverned {
-    TreasuryManager public manager;
-    IStreamingFeeModule public module;
-    TokenAllowlist public allowlist;
-    ISetToken public setToken;
+contract StreamingFeeAdapter is BaseAdapter {
+    IStreamingFeeModule public immutable module;
 
     constructor(
         ISetToken _setToken,
         TreasuryManager _manager,
-        IStreamingFeeModule _module,
-        address _gov
-    ) public {
-        setToken = _setToken;
-        manager = _manager;
+        IStreamingFeeModule _module
+    ) public BaseAdapter(_setToken, _manager){
         module = _module;
-        gov = _gov;
     }
 
     /**
@@ -33,7 +26,7 @@ contract StreamingFeeAdapter is SubGoverned {
      */
     function updateFeeRecipient(address _newFeeRecipient)
         external
-        onlyGovOrSubGov
+        onlyCanInvokeModules
     {
         bytes memory encoded = abi.encode(
             module.updateFeeRecipient.selector,
@@ -48,7 +41,10 @@ contract StreamingFeeAdapter is SubGoverned {
      *
      * @param _newFee                    New streaming fee 18 decimal precision
      */
-    function updateStreamingFee(uint256 _newFee) external onlyGovOrSubGov {
+    function updateStreamingFee(uint256 _newFee)
+        external
+        onlyCanInvokeModules
+    {
         bytes memory encoded = abi.encode(
             module.updateStreamingFee.selector,
             address(setToken),

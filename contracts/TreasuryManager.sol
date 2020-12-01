@@ -14,14 +14,11 @@ import {ITradeModule} from "./interfaces/ITradeModule.sol";
 import {IWrapModule} from "./interfaces/IWrapModule.sol";
 
 contract TreasuryManager is SubGoverned {
-    using PreciseUnitMath for uint256;
     using Address for address;
 
     /* ============ Modifiers ============ */
 
-    /**
-     * Throws if the sender is not whitelisted for this module
-     */
+    /** @notice Throws if the sender is not allowed for this module */
     modifier onlyAllowedForModule(address _module, address _user){
         require(moduleAdapterAllowlist[_module][_user] || _user == gov || isSubGov[_user], "TreasuryManager::onlyAllowlistedForModule: User is not allowed for module");
         _;
@@ -29,20 +26,33 @@ contract TreasuryManager is SubGoverned {
 
     /* ============ State Variables ============ */
 
-    /** @notice  Set token this contract manages             */
+    /** @notice  Set token this contract manages                     */
     ISetToken public setToken;
 
-    /** @notice  mapping of allowed adapters                 */
+    /** @notice  mapping of allowed manager adapters                 */
     mapping(address => mapping(address => bool)) public moduleAdapterAllowlist;
 
+    /** @notice  mapping of all allowed tokens                       */
+    mapping(address => bool) public tokenAllowlist;
+
+    /* ============ Events ============ */
+
+    event TokensAdded(address[] tokens);
+    event TokensRemoved(address[] tokens);
+    
     constructor(
         ISetToken _setToken,
-        address _gov        
+        address _gov,
+        address[] memory _allowedTokens        
     ) 
         public
     {
         setToken = _setToken;
         gov = _gov;
+        for(uint256 index = 0; index < _allowedTokens.length; index++){
+            tokenAllowlist[_allowedTokens[index]] = true;
+            emit TokensAdded(_allowedTokens);
+        }
     }
 
     /* ============ External Functions ============ */
@@ -55,7 +65,7 @@ contract TreasuryManager is SubGoverned {
      */
     function addModule(address _module) 
         external
-        onlyGovOrSubGov
+        onlyGov
     {
         setToken.addModule(_module);
     }
@@ -67,7 +77,7 @@ contract TreasuryManager is SubGoverned {
      */
     function removeModule(address _module)
         external
-        onlyGovOrSubGov
+        onlyGov
     {
         setToken.removeModule(_module);
     }
@@ -88,7 +98,7 @@ contract TreasuryManager is SubGoverned {
     }
 
     /**
-     * @dev Gov or SubGov ONLY. Updates whether a module + adapter combo are allowed
+     * @dev Gov ONLY. Updates whether a module + adapter combo are allowed
      *
      * @param _module                    The module to allow this adapter with
      * @param _adapter                   The adapter to allow with this module
@@ -99,9 +109,53 @@ contract TreasuryManager is SubGoverned {
         bool allowed
     )
         external
-        onlyGovOrSubGov
+        onlyGov
     {
         moduleAdapterAllowlist[_module][_adapter] = allowed;
     }
-    
+
+
+    /**
+     * @dev Gov ONLY. Updates whether a module + adapter combo are allowed
+     *
+     * @param _tokens                    The list of tokens to add
+     */
+    function addTokens(address[] memory _tokens)
+        public
+        onlyGov
+    {
+        for(uint256 index = 0; index < _tokens.length; index++ ){
+            tokenAllowlist[_tokens[index]] = true;
+        }
+        emit TokensAdded(_tokens);
+    }
+
+    /**
+     * @dev Gov ONLY. Updates whether a module + adapter combo are allowed
+     *
+     * @param _tokens                    The list of tokens to remove
+     */
+    function removeTokens(address[] memory _tokens)
+        external
+        onlyGov
+    {
+        for(uint256 index = 0; index < _tokens.length; index++ ){
+            tokenAllowlist[_tokens[index]] = false;
+        }
+        emit TokensRemoved(_tokens);
+    }
+
+    /**
+     * @dev Returns whether a token is allowed
+     *
+     * @param _token                    The token to check if it is allowed
+     */
+    function isTokenAllowed(address _token)
+        external
+        view
+        returns (bool allowed)
+    {
+        return tokenAllowlist[_token];
+    }
+
 }

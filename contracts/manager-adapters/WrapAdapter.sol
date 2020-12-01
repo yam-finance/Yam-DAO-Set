@@ -2,32 +2,23 @@
 
 pragma solidity 0.6.12;
 
-import {SubGoverned} from "../lib/SubGoverned.sol";
+import {BaseAdapter} from "./BaseAdapter.sol";
 import {TreasuryManager} from "../TreasuryManager.sol";
-import {TokenAllowlist} from "../lib/TokenAllowlist.sol";
+
 import {IWrapModule} from "../interfaces/IWrapModule.sol";
 import {ISetToken} from "../interfaces/ISetToken.sol";
 
-contract WrapAdapter is SubGoverned {
-    TreasuryManager public manager;
+contract WrapAdapter is BaseAdapter {
     IWrapModule public module;
-    TokenAllowlist public allowlist;
-    ISetToken public setToken;
 
     constructor(
         ISetToken _setToken,
         TreasuryManager _manager,
-        IWrapModule _module,
-        TokenAllowlist _allowlist,
-        address _gov
+        IWrapModule _module
     )
-        public
+        public BaseAdapter(_setToken, _manager)
     {
-        setToken = _setToken;
-        manager = _manager;
         module = _module;
-        allowlist = _allowlist;
-        gov = _gov;
     }
  
     /**
@@ -45,10 +36,10 @@ contract WrapAdapter is SubGoverned {
         uint256 _underlyingUnits
     )
         external
-        onlyGovOrSubGov
+        onlyCanInvokeModules
     {
         require(
-            allowlist.isAllowed(_wrappedToken),
+            manager.isTokenAllowed(_wrappedToken),
             "WrapAdapter::wrap: _wrappedToken is not on the allowed list"
         );
         bytes memory encoded = abi.encodeWithSelector(module.wrap.selector,
@@ -77,10 +68,10 @@ contract WrapAdapter is SubGoverned {
         uint256 _wrappedUnits
     )
         external
-        onlyGovOrSubGov
+        onlyCanInvokeModules
     {
         require(
-            allowlist.isAllowed(_underlyingToken),
+             manager.isTokenAllowed(_underlyingToken),
             "WrapAdapter::unwrap: _underlyingToken is not on the allowed list"
         );
         bytes memory encoded = abi.encodeWithSelector(module.unwrap.selector,
