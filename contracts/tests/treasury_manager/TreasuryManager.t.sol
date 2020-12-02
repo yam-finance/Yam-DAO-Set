@@ -24,9 +24,10 @@ contract TreasuryManagerTest is BaseTest {
     
     function setUp() public {
         setUpCore();
-        address[] memory allowedTokens = new address[](2);
+        address[] memory allowedTokens = new address[](3);
         allowedTokens[0] = address(sushi);
         allowedTokens[1] = address(xsushi);
+        allowedTokens[2] = address(weth);
 
         manager = new TreasuryManager(
             setToken,
@@ -69,6 +70,35 @@ contract TreasuryManagerTest is BaseTest {
             xsushiBalance
         );
         assertEq(xsushi.balanceOf(address(setToken)), 0);
+        uint256 sushiBalance = sushi.balanceOf(address(setToken));
+        assertTrue(sushiBalance > 0);
+    }
+
+    function test_tm_uniswap_trade_adapter() public {
+        // -- force verbose
+        assertTrue(false);
+
+        tradeAdapter.trade(
+            "UniswapV2Router02TradeAdapter",
+            address(sushi),
+            1 * (10**18),
+            address(weth),
+            1,
+            ""
+        );
+        assertEq(sushi.balanceOf(address(setToken)), 0);
+        uint256 wethBalance = weth.balanceOf(address(setToken));
+        assertTrue(wethBalance > 0);
+
+        tradeAdapter.trade(
+            "UniswapV2Router02TradeAdapter",
+            address(weth),
+            wethBalance,
+            address(sushi),
+            1,
+            ""
+        );
+        assertEq(weth.balanceOf(address(setToken)), 0);
         uint256 sushiBalance = sushi.balanceOf(address(setToken));
         assertTrue(sushiBalance > 0);
     }

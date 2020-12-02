@@ -7,6 +7,7 @@ import {DSTest} from "../../lib/test.sol";
 import {TreasuryHelpers} from "../HEVMHelpers.sol";
 
 import {SushiBarWrapAdapter} from "../../set-adapters/SushiBarWrapAdapter.sol";
+import {UniswapV2Router02TradeAdapter} from "../../set-adapters/UniswapV2Router02TradeAdapter.sol";
 
 import {IERC20} from "../../interfaces/IERC20.sol";
 import {IIntegrationRegistry} from "../../interfaces/IIntegrationRegistry.sol";
@@ -67,7 +68,8 @@ contract BaseTest is DSTest {
 
     IERC20 xsushi = IERC20(0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272);
     IERC20 sushi = IERC20(0x6B3595068778DD592e39A122f4f5a5cF09C90fE2);
-
+    IERC20 weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    
     ISetTokenCreator setCreator = ISetTokenCreator(
         0x65d103A810099193c892a23d6b320cF3B9E30D46
     );
@@ -91,6 +93,11 @@ contract BaseTest is DSTest {
             address(wrapModule),
             "SushiBarWrapAdapter",
             address(new SushiBarWrapAdapter(address(sushi), address(xsushi)))
+        );
+        integrationRegistry.addIntegration(
+            address(tradeModule),
+            "UniswapV2Router02TradeAdapter",
+            address(new UniswapV2Router02TradeAdapter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D))
         );
 
         address[] memory tokens = new address[](1);
