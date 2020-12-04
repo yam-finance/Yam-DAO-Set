@@ -22,12 +22,12 @@ contract WrapAdapter is BaseAdapter {
     }
  
     /**
-     * @dev Gov or SubGov ONLY. This function will revert if the wrappedToken isn't on the allowed list
+     * @dev Only can invoke modules. This function will revert if the wrappedToken isn't on the allowed list
      *
      * @param _integrationName          The name of the integration to interact with
      * @param _underlyingToken          The token to wrap
      * @param _wrappedToken             The token to get after wrapping
-     * @param _underlyingUnits          The amount of unlderlyingToken to wrap
+     * @param _underlyingUnits          The amount of underlyingToken to wrap
      */
     function wrap(
         string memory _integrationName,
@@ -54,7 +54,7 @@ contract WrapAdapter is BaseAdapter {
     }
 
     /**
-     * @dev Gov or SubGov ONLY. This function will revert if the underlyingTOken isn't on the allowed list
+     * @dev Only can invoke modules. This function will revert if the underlyingToken isn't on the allowed list
      *
      * @param _integrationName          The name of the integration to interact with
      * @param _underlyingToken          The underlying token to receive
@@ -71,7 +71,7 @@ contract WrapAdapter is BaseAdapter {
         onlyCanInvokeModules
     {
         require(
-             manager.isTokenAllowed(_underlyingToken),
+            manager.isTokenAllowed(_underlyingToken),
             "WrapAdapter::unwrap: _underlyingToken is not on the allowed list"
         );
         bytes memory encoded = abi.encodeWithSelector(module.unwrap.selector,

@@ -20,7 +20,7 @@ contract StreamingFeeAdapter is BaseAdapter {
     }
 
     /**
-     * @dev Gov or SubGov ONLY
+     * @dev Only can invoke modules
      *
      * @param _newFeeRecipient           New fee recipient address
      */
@@ -37,7 +37,7 @@ contract StreamingFeeAdapter is BaseAdapter {
     }
 
     /**
-     * @dev Gov or SubGov ONLY
+     * @dev Only can invoke modules
      *
      * @param _newFee                    New streaming fee 18 decimal precision
      */

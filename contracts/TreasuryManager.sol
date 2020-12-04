@@ -2,16 +2,10 @@
 
 pragma solidity 0.6.12;
 
-import {SafeMath} from "./lib/SafeMath.sol";
-
 import {SubGoverned} from "./lib/SubGoverned.sol";
-import {PreciseUnitMath} from "./lib/PreciseUnitMath.sol";
 import {Address} from "./lib/Address.sol";
 
 import {ISetToken} from "./interfaces/ISetToken.sol";
-import {IStreamingFeeModule} from "./interfaces/IStreamingFeeModule.sol";
-import {ITradeModule} from "./interfaces/ITradeModule.sol";
-import {IWrapModule} from "./interfaces/IWrapModule.sol";
 
 contract TreasuryManager is SubGoverned {
     using Address for address;
@@ -20,7 +14,7 @@ contract TreasuryManager is SubGoverned {
 
     /** @notice Throws if the sender is not allowed for this module */
     modifier onlyAllowedForModule(address _module, address _user){
-        require(moduleAdapterAllowlist[_module][_user] || _user == gov || isSubGov[_user], "TreasuryManager::onlyAllowlistedForModule: User is not allowed for module");
+        require(moduleAdapterAllowlist[_module][_user] || _user == gov , "TreasuryManager::onlyAllowlistedForModule: User is not allowed for module");
         _;
     }
 
@@ -59,7 +53,19 @@ contract TreasuryManager is SubGoverned {
 
 
     /**
-     * @dev Gov or SubGov ONLY
+     * @dev Gov ONLY
+     *
+     * @param _newManager           New manager to set for the set token
+     */
+    function setManager(address _newManager) 
+        external
+        onlyGov
+    {
+        setToken.setManager(_newManager);
+    }
+
+    /**
+     * @dev Gov ONLY
      *
      * @param _module           New module to add to the set token
      */
@@ -71,7 +77,7 @@ contract TreasuryManager is SubGoverned {
     }
 
     /**
-     * @dev Gov or SubGov ONLY
+     * @dev Gov
      *
      * @param _module           Module to remove
      */
@@ -83,7 +89,7 @@ contract TreasuryManager is SubGoverned {
     }
 
     /**
-     * @dev Gov or SubGov ONLY
+     * @dev Only allowed for module
      *
      * @param _module           Module to interact with
      * @param _data             Byte data of function to call in module

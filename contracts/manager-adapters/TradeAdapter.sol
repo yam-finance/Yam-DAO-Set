@@ -5,7 +5,6 @@ pragma solidity 0.6.12;
 import {BaseAdapter} from "./BaseAdapter.sol";
 import {TreasuryManager} from "../TreasuryManager.sol";
 
-import {SubGoverned} from "../lib/SubGoverned.sol";
 import {PreciseUnitMath} from "../lib/PreciseUnitMath.sol";
 
 import {ITradeModule} from "../interfaces/ITradeModule.sol";
@@ -28,7 +27,7 @@ contract TradeAdapter is BaseAdapter {
     }
 
     /**
-     * @dev Gov or SubGov ONLY. Will revert if the destinationToken isn't on the allowed list
+     * @dev Only can invoke modules. Will revert if the destinationToken isn't on the allowed list
      *
      * @param _integrationName             The name of the integration to interact with
      * @param _sourceToken                 The address of the token to spend
@@ -52,7 +51,7 @@ contract TradeAdapter is BaseAdapter {
             manager.isTokenAllowed(_destinationToken),
             "TradeAdapter::trade: _destinationToken is not on the allowed list"
         );
-        // NOTE: should I be doing this? I assume so since totalSupply could change if it isn't transformed on-chain
+
         uint256 transformedSourceAmount = _sourceAmount.preciseDiv(
             setToken.totalSupply()
         );

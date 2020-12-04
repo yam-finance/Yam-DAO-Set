@@ -4,7 +4,7 @@ pragma solidity 0.6.12;
 
 /**
  * @title SushiBarWrapAdapter
- * @author Nate Welch (Yam Finance)
+ * @author Yam Finance
  *
  * Wrap adapter for depositing/withdrawing sushi to/from SushiBar (xSushi)
  */
@@ -13,10 +13,10 @@ contract SushiBarWrapAdapter {
     /* ============ State Variables ============ */
 
 
-    // Address of LEND token
+    // Address of SUSHI token
     address public immutable sushiToken;
 
-    // Address of AAVE token
+    // Address of xSUSHI token
     address public immutable xsushiToken;
 
     /* ============ Constructor ============ */
@@ -47,7 +47,7 @@ contract SushiBarWrapAdapter {
      * @param _underlyingUnits      Total quantity of underlying units to wrap
      *
      * @return address              Target contract address
-     * @return uint256              Total quantity of underlying units (if underlying is ETH)
+     * @return uint256              Unused, always 0
      * @return bytes                Wrap calldata
      */
     function getWrapCallData(
@@ -71,8 +71,12 @@ contract SushiBarWrapAdapter {
     /**
      * Generates the calldata to unwrap xsushi to sushi
      *
+     * @param _underlyingToken      Address of the component to be unwrapped to
+     * @param _wrappedToken         Address of the wrapped component
+     * @param _wrappedTokenUnits    Total quantity of wrapped units to wrap
+     *
      * @return address              Target contract address
-     * @return uint256              Total quantity of wrapped token units to unwrap. This will always be 0 for unwrapping
+     * @return uint256              Unused, always 0
      * @return bytes                Unwrap calldata
      */
     function getUnwrapCallData(
@@ -97,7 +101,7 @@ contract SushiBarWrapAdapter {
     /**
      * Returns the address to approve source tokens for wrapping.
      *
-     * @return address        Address of the contract to approve tokens to
+     * @return address        Address of the contract to approve tokens to. This is the SushiBar (xSushi) contract.
      */
     function getSpenderAddress(address /*_underlyingToken*/, address /*_wrappedToken*/) external view returns(address) {
         return address(xsushiToken);

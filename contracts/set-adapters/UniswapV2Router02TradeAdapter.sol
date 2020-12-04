@@ -1,25 +1,24 @@
+// SPDX-License-Identifier: GPL-3.0
 
 pragma solidity 0.6.12;
 pragma experimental "ABIEncoderV2";
 
-
 interface UniswapV2Router02 {
     function swapExactTokensForTokens(
-  uint amountIn,
-  uint amountOutMin,
-  address[] calldata path,
-  address to,
-  uint deadline
-) external returns (uint[] memory amounts);
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
 
 }
 /**
  * @title UniswapV2TradeAdapter
- * @author Set Protocol
+ * @author Yam Finance
  *
- * Exchange adapter for Uniswap V2 that returns data for trades
+ * Exchange adapter for Uniswap V2 Router02 that encodes trade data
  */
-
 contract UniswapV2Router02TradeAdapter {
 
     /* ============ State Variables ============ */
@@ -77,7 +76,7 @@ contract UniswapV2Router02TradeAdapter {
     }
 
     /**
-     * Returns the address to approve source tokens to for trading. This is the TokenTaker address
+     * Returns the address to approve source tokens to for trading. This is the Uniswap router address
      *
      * @return address             Address of the contract to approve tokens to
      */
