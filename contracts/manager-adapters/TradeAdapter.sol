@@ -27,7 +27,7 @@ contract TradeAdapter is BaseAdapter {
     }
 
     /**
-     * @dev Only can invoke modules. Will revert if the destinationToken isn't on the allowed list
+     * @dev Only gov. Will revert if the destinationToken isn't on the allowed list
      *
      * @param _integrationName             The name of the integration to interact with
      * @param _sourceToken                 The address of the token to spend
@@ -37,6 +37,7 @@ contract TradeAdapter is BaseAdapter {
      * @param _data                        Calldata needed for the integration
      */
     function trade(
+        address /* unused */, // Left here purely so that ABI is exactly the same as the trade module
         string memory _integrationName,
         address _sourceToken,
         uint256 _sourceAmount,
@@ -45,22 +46,19 @@ contract TradeAdapter is BaseAdapter {
         bytes memory _data
     )
         external
-        onlyCanInvokeModules
+        onlyGovOrSubGov
     {
         require(
             manager.isTokenAllowed(_destinationToken),
             "TradeAdapter::trade: _destinationToken is not on the allowed list"
         );
-
-        uint256 transformedSourceAmount = _sourceAmount.preciseDiv(
-            setToken.totalSupply()
-        );
+        
         bytes memory encoded = abi.encodeWithSelector(
             module.trade.selector,
             setToken,
             _integrationName,
             _sourceToken,
-            transformedSourceAmount,
+            _sourceAmount,
             _destinationToken,
             _minimumDestinationAmount,
             _data

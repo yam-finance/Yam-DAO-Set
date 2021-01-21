@@ -36,7 +36,7 @@ contract WrapAdapter is BaseAdapter {
         uint256 _underlyingUnits
     )
         external
-        onlyCanInvokeModules
+        onlyGovOrSubGov
     {
         require(
             manager.isTokenAllowed(_wrappedToken),
@@ -68,7 +68,7 @@ contract WrapAdapter is BaseAdapter {
         uint256 _wrappedUnits
     )
         external
-        onlyCanInvokeModules
+        onlyGovOrSubGov
     {
         require(
             manager.isTokenAllowed(_underlyingToken),

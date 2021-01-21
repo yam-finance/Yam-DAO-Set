@@ -79,6 +79,7 @@ contract TreasuryManagerTest is BaseTest {
         assertTrue(false);
 
         tradeAdapter.trade(
+            address(0x0),
             "UniswapV2Router02TradeAdapter",
             address(sushi),
             1 * (10**18),
@@ -91,6 +92,7 @@ contract TreasuryManagerTest is BaseTest {
         assertTrue(wethBalance > 0);
 
         tradeAdapter.trade(
+            address(0x0),
             "UniswapV2Router02TradeAdapter",
             address(weth),
             wethBalance,

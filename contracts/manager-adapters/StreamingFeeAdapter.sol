@@ -26,7 +26,7 @@ contract StreamingFeeAdapter is BaseAdapter {
      */
     function updateFeeRecipient(address _newFeeRecipient)
         external
-        onlyCanInvokeModules
+        onlyGov
     {
         bytes memory encoded = abi.encode(
             module.updateFeeRecipient.selector,
@@ -43,7 +43,7 @@ contract StreamingFeeAdapter is BaseAdapter {
      */
     function updateStreamingFee(uint256 _newFee)
         external
-        onlyCanInvokeModules
+        onlyGov
     {
         bytes memory encoded = abi.encode(
             module.updateStreamingFee.selector,
